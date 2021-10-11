@@ -1,3 +1,3 @@
 public enum tokenType {
-    ID, INT, FLOAT, PLUS, MINUS, MULT, DIV
+    ID, INT, FLOAT, PLUS, MINUS, MULT, DIV, ASSIGN
 }
