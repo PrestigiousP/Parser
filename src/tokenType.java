@@ -1,3 +1,21 @@
 public enum tokenType {
-    ID, INT, FLOAT, PLUS, MINUS, MULT, DIV, ASSIGN
+    ID,
+    INT,
+    FLOAT,
+    PLUS,
+    MINUS,
+    MULT,
+    DIV,
+    ASSIGN,
+    PROCEDURE,
+    FIN_PROCEDURE,
+    DECLARE,
+    ENTIER,
+    REEL,
+    RIGHTPARENT,
+    LEFTPARENT,
+    SEMICOLON,
+    COLON,
+    RIGHTCURL,
+    LEFTCURL
 }
