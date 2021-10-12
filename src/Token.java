@@ -19,6 +19,7 @@ public class Token {
             case ")" -> type = tokenType.RIGHTPARENT;
             case "{" -> type = tokenType.LEFTCURL;
             case "}" -> type = tokenType.RIGHTCURL;
+            default -> type = tokenType.ID;
         }
         value = _value;
     }

@@ -9,5 +9,6 @@ public class Parser {
         sourceCode = textFile;
         tokenList = new ArrayList<>();
         lexer = new Lexer(textFile, tokenList);
+        tokenList = lexer.getTokenList();
     }
 }

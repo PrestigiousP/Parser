@@ -9,17 +9,27 @@ public class Lexer {
     private ArrayList<Token> tokenList;
     private int liCount;
     private int colCount;
+    private String token;
     private File sourceCode;
+
     public Lexer(File textFile, ArrayList<Token> tokenList){
         sourceCode = textFile;
         this.tokenList = tokenList;
+        createTokenList();
+    }
+
+    private void createTokenList() {
         try {
-            File myObj = new File("sourceCode.txt");
-            Scanner reader = new Scanner(myObj);
+            Scanner reader = new Scanner(sourceCode);
             while (reader.hasNextLine()) {
                 String data = reader.nextLine();
                 for(int i=0;i<data.length();i++){
-                    System.out.println(data.charAt(i));
+                    char ch = data.charAt(i);
+                    // Ici on peut accéder à tous les char
+                    if(!Character.isWhitespace(ch)){
+
+                        System.out.println(data.charAt(i));
+                    }
                 }
             }
             reader.close();
@@ -27,5 +37,9 @@ public class Lexer {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<Token> getTokenList(){
+        return this.tokenList;
     }
 }
