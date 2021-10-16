@@ -1,2 +1,3 @@
-int test = 1
-print(test)
+ Procedure nomMethode declare id:entier;
+ id=1+2
+ Fin_procedure nomMethode

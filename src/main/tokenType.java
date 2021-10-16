@@ -1,7 +1,7 @@
+package main;
+
 public enum tokenType {
     ID,
-    INT,
-    FLOAT,
     PLUS,
     MINUS,
     MULT,
@@ -12,10 +12,6 @@ public enum tokenType {
     DECLARE,
     ENTIER,
     REEL,
-    RIGHTPARENT,
-    LEFTPARENT,
     SEMICOLON,
     COLON,
-    RIGHTCURL,
-    LEFTCURL
 }
