@@ -44,19 +44,25 @@ public class Lexer {
                         { // on veut s'assurer que le dernier charactere n'est pas une lettre ou autre
                             System.out.println("enregistre chiffre");
                             tokenList.add(new Token("entier",tokenPart));
-                            System.out.println(tokenPart);
                             System.out.println(" enregistre chiffre");
                             tokenIsSaved = true;
                         }
                     }
-                    if(Character.isLetterOrDigit(ch) && !tokenIsSaved) { // un mot peut avoir des chiffres à l'intérieur
+                    if(Character.isLetterOrDigit(ch) && !tokenIsSaved ) { // un mot peut avoir des chiffres à l'intérieur
                         while(Character.isDigit(ch) || Character.isLetter(ch)){
                             tokenPart += ch;
+                            if(i == data.length() - 1){
+//                                System.out.println("enregistre mot");
+//                                tokenList.add(new Token("entier",tokenPart));
+//                                System.out.println(tokenPart);
+//                                System.out.println("enregistre mot");
+//                                tokenIsSaved = true;
+                                break;
+                            }
                             i++;
-                            if(i == data.length()) break;
                             ch = data.charAt(i);
                         }
-                        if(Character.isLetterOrDigit(ch) && !tokenIsSaved || Character.isLetterOrDigit(data.charAt(i) - 1) && specialChars.indexOf(data.charAt(i)) >= 0 && !tokenIsSaved ) {
+                        if((Character.isLetterOrDigit(ch) || Character.isLetterOrDigit(data.charAt(i -1))) && !tokenIsSaved ) {
                             System.out.println("enregistre mot");
                             tokenList.add(new Token("entier",tokenPart));
                             System.out.println(tokenPart);
@@ -65,7 +71,7 @@ public class Lexer {
                         }
                     }
 
-                    if( specialChars.indexOf(ch) >= 0 && !tokenIsSaved) {
+                    if( specialChars.indexOf(ch) >= 0) {
                         System.out.println("special: " + ch);
 
                     }
