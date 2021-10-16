@@ -1,2 +1,4 @@
-int test = 1
-print(test)
+al= = aa
+int test= 1123t
+print==(test) salut
+

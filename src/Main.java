@@ -6,5 +6,6 @@ public class Main {
     public static void main(String[] args) {
         File textFile = new File("sourceCode.txt");
         Parser parser = new Parser(textFile);
+
     }
 }
