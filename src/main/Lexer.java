@@ -44,7 +44,8 @@ public class Lexer {
                         }
                     }
                     else if(!Character.isWhitespace(data.charAt(i)) &&
-                            !specialCharacter.isSpecialCharacter(String.valueOf(data.charAt(i)))){
+                            !specialCharacter.isSpecialCharacter(String.valueOf(data.charAt(i))) &&
+                            !(data.charAt(i) == '.')){
                         throw new IllegalCharacter(String.valueOf(data.charAt(i)));
                     }
                 }
@@ -53,7 +54,7 @@ public class Lexer {
             tokenList.forEach(token -> {
                 System.out.println(token.getTokenType());
             });
-//            System.out.println(tokenList);
+            System.out.println("---------------------");
             return tokenList;
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
@@ -63,9 +64,5 @@ public class Lexer {
             e.printStackTrace();
         }
         return new ArrayList<>();
-    }
-
-    public ArrayList<Token> getTokenList(){
-        return this.tokenList;
     }
 }

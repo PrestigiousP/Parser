@@ -4,7 +4,8 @@ import main.tokenType;
 
 public class Token {
     private final tokenType type;
-    private String id;
+    // type que la variable peut prendre (après déclaration)
+    private tokenType varType;
     private String  value;
 
     public Token(String _type) {
@@ -31,35 +32,27 @@ public class Token {
                 case "entier" -> type = tokenType.ENTIER;
                 case "reel" -> type = tokenType.REEL;
                 default -> {
+                    // System.out.println(_type);
                     type = tokenType.ID;
-                    id = _type;
                 }
             }
         }
+        value = _type;
     }
-
-        /*
-
-        Procedure nomMethode declare <variable> : <type> ;
-
-        <instructions_affectation>
-        Fin_Procedure <identificateur>2
-
-    <déclaration> <déclarations>
-    declare <variable> : <type> ;
-    declare <variable> : <type> ;
-         */
-
-//     Procedure
-//     nomMethode
-//     declare id1 : entier;
-//     declare id2 : entier;
-//      id1 = 1;
-//      id2 = 4 + id1;
-//     Fin_Procedure
-
     public void addChar(char ch){
         value += ch;
+    }
+
+    public void setVarType(tokenType tk) {
+        this.varType = tk;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public tokenType getVarType(){
+        return this.varType;
     }
 
     public tokenType getTokenType(){

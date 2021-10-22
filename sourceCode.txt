@@ -1,3 +1,3 @@
- Procedure nomMethode declare id:entier;
- id=1+2
- Fin_procedure nomMethode
+ Procedure nomMetho declare id:entier;
+ id=1+2.3
+ Fin_Procedure nomMetho
