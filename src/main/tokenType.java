@@ -14,4 +14,5 @@ public enum tokenType {
     REEL,
     SEMICOLON,
     COLON,
+    ENDLINE
 }

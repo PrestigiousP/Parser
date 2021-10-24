@@ -31,6 +31,7 @@ public class Token {
                 case "declare" -> type = tokenType.DECLARE;
                 case "entier" -> type = tokenType.ENTIER;
                 case "reel" -> type = tokenType.REEL;
+                case "endLine" -> type = tokenType.ENDLINE;
                 default -> {
                     // System.out.println(_type);
                     type = tokenType.ID;

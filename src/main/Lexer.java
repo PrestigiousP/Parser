@@ -48,12 +48,22 @@ public class Lexer {
                             !(data.charAt(i) == '.')){
                         throw new IllegalCharacter(String.valueOf(data.charAt(i)));
                     }
+                    // Ici on s'assure que le charatère '.' soit entouré de chiffres.
+                    // Quand c'est le cas alors on l'ajoute au nombre.
+                    else if(data.charAt(i) == '.' &&
+                            i > 0 &&
+                            i < data.length()-1 &&
+                            Character.isDigit(data.charAt(i-1)) &&
+                            Character.isDigit(data.charAt(i+1))){
+                        str.append(data.charAt(i));
+                    }
+//                    if(data.length() == i + 1){
+//                        tokenList.add(new Token("endLine"));
+//                    }
                 }
             }
             reader.close();
-            tokenList.forEach(token -> {
-                System.out.println(token.getTokenType());
-            });
+            tokenList.forEach(token -> System.out.println(token.getTokenType()));
             System.out.println("---------------------");
             return tokenList;
         } catch (FileNotFoundException e) {
