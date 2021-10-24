@@ -84,7 +84,12 @@ public class Parser {
     private void variable(boolean bool){
         String tokenValue = tokenList.get(index).getTokenValue();
         if(!(Character.isLetter(tokenValue.charAt(0)) && tokenValue.length() <= 8)){
-            System.out.println("erreur variable");
+            if(!Character.isLetter(tokenValue.charAt(0))){
+                throw new Exception("Erreur variable, ne commence pas par une lettre: ", tokenValue);
+            } else{
+                throw new Exception("Erreur variable, est plus grand que 8 characteres: ", tokenValue.length());
+            }
+
         }
         else{
             if(bool){
@@ -104,7 +109,7 @@ public class Parser {
             tk.setVarType(tokenType.REEL);
         }
         else{
-            System.out.println("erreur type invalide");
+            throw new Exception("Erreur : Type illégal n'est pas entier ou réel", tk.getVarType().toString());
         }
     }
 
@@ -115,7 +120,7 @@ public class Parser {
     private void instructionAffectation(){
         Token tk;
         if(!isVariableDeclared(index)){
-            System.out.println("Erreur : variable non déclarée");
+            throw new Exception("Erreur : variable non déclarée");
         }
         variable(false);
         // TODO: vérifier que si y'a une erreur dans variable() que ça pose pas problème pour tk ici
@@ -151,19 +156,20 @@ public class Parser {
     private void facteur(Token tk){
         if(tokenList.get(index).getTokenType() == tokenType.ID){
             if(!isVariableDeclared(index)){
-                System.out.println("Erreur: variable non déclarée");
+                throw new Exception("Erreur : variable non déclarée");
             }
             variable(false);
         }
         else if(tokenList.get(index).getTokenType() == tokenType.ENTIER) {
             if(tk.getVarType() != tokenType.ENTIER){
                 //todo: lancher une erreur
-                System.out.println("type illégal");
+                throw new Exception("Erreur : Type illégal, n'est pas entier : ", tk.getVarType().toString());
             }
         } else if(tokenList.get(index).getTokenType() == tokenType.REEL){
             if(tk.getVarType() != tokenType.REEL){
                 //todo: lancer une erreur
-                System.out.println("type illégal");
+                throw new Exception("Erreur : Type illégal, n'est pas réel : ", tk.getVarType().toString());
+
             }
         }
         else{

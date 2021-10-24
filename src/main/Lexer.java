@@ -46,7 +46,7 @@ public class Lexer {
                     else if(!Character.isWhitespace(data.charAt(i)) &&
                             !specialCharacter.isSpecialCharacter(String.valueOf(data.charAt(i))) &&
                             !(data.charAt(i) == '.')){
-                        throw new IllegalCharacter(String.valueOf(data.charAt(i)));
+                        throw new Exception("IllegalCharacter",String.valueOf(data.charAt(i)));
                     }
                     // Ici on s'assure que le charatère '.' soit entouré de chiffres.
                     // Quand c'est le cas alors on l'ajoute au nombre.
@@ -70,7 +70,7 @@ public class Lexer {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        catch(IllegalCharacter e){
+        catch(Exception e){
             e.printStackTrace();
         }
         return new ArrayList<>();
