@@ -41,7 +41,11 @@ public class Parser {
             identificateurMethode = tokenValue;
         }
         else{
-            System.out.println("identificateur invalide");
+            if(!Character.isLetter(tokenValue.charAt(0))){
+                throw new Exception("Erreur identificateur, ne commence pas par une lettre: ", tokenValue);
+            } else{
+                throw new Exception("Erreur identificateur, est plus grand que 8 characteres: ", tokenValue.length());
+            }
         }
     }
 
