@@ -8,7 +8,6 @@ public class Parser {
     private File sourceCode;
     private Lexer lexer;
     private ArrayList<Token> tokenList;
-    private SpecialCharacter specialCharacter;
     private String identificateurMethode;
     private ArrayList<Token> varList;
     private int index;
@@ -18,25 +17,25 @@ public class Parser {
         varList = new ArrayList<>();
         sourceCode = textFile;
         tokenList = new ArrayList<>();
-        specialCharacter = new SpecialCharacter();
+        SpecialCharacter specialCharacter = new SpecialCharacter();
         lexer = new Lexer(textFile, tokenList, specialCharacter);
         tokenList = lexer.tokenize();
-        procedure(tokenList);
+        procedure();
         // checkIds(tokenList);
     }
 
-    private void procedure(ArrayList<Token> tokenList){
-        if(!searchForString(tokenList, "Procedure", index)){
+    private void procedure(){
+        if(!searchForString("Procedure", index)){
             System.out.println("mot clé \"Procédure\" manquant");
         }
-        index = incremente(index);
-        identificateur(tokenList);
-        index = incremente(index);
-        declarations(tokenList);
-        instructionsAffectation(tokenList);
+        index++;
+        identificateur();
+        index++;
+        declarations();
+        instructionsAffectation();
     }
 
-    private void identificateur(ArrayList<Token> tokenList){
+    private void identificateur(){
         String tokenValue = tokenList.get(index).getTokenValue();
         if(Character.isLetter(tokenValue.charAt(0)) && tokenValue.length() <= 8){
             identificateurMethode = tokenValue;
@@ -46,35 +45,35 @@ public class Parser {
         }
     }
 
-    private void declarations(ArrayList<Token> tokenList){
-        declaration(tokenList);
+    private void declarations(){
+        declaration();
 //        System.out.println(tokenList.get(index).getTokenId());
         if(tokenList.get(index).getTokenValue().equals("declare")){
-            declarations(tokenList);
+            declarations();
         }
 //        System.out.println(tokenList.get(index).getTokenId());
     }
 
-    private void declaration(ArrayList<Token> tokenList){
+    private void declaration(){
 //        System.out.println(tokenList.get(index).getTokenId());
         Token tk;
-        if(!searchForString(tokenList,"declare", index)){
+        if(!searchForString("declare", index)){
             System.out.println("mot clé \"declare\" manquant");
         }
-        index = incremente(index);
-        variable(tokenList, true);
+        index++;
+        variable(true);
         tk = tokenList.get(index);
-        index = incremente(index);
-        if(searchForString(tokenList, ":", index)){
+        index++;
+        if(!searchForString(":", index)){
             System.out.println("mot clé \":\" manquant");
         }
-        index = incremente(index);
-        type(tokenList, tk);
-        index = incremente(index);
-        if(searchForString(tokenList, ";", index)){
+        index++;
+        type(tk);
+        index++;
+        if(!searchForString(";", index)){
             System.out.println("mot clé \";\" manquant");
         }
-        index = incremente(index);
+        index++;
     }
 
     /*
@@ -82,7 +81,7 @@ public class Parser {
         Le paramètre bool est vrai quand la variable est utilisée dans une déclaration et
         fausse quand elle est utilisée dans une expression.
      */
-    private void variable(ArrayList<Token> tokenList, boolean bool){
+    private void variable(boolean bool){
         String tokenValue = tokenList.get(index).getTokenValue();
         if(!(Character.isLetter(tokenValue.charAt(0)) && tokenValue.length() <= 8)){
             System.out.println("erreur variable");
@@ -94,7 +93,7 @@ public class Parser {
         }
     }
 
-    private void type(ArrayList<Token> tokenList, Token tk){
+    private void type(Token tk){
         String str = "entier";
         String str2 = "reel";
         String tokenValue = tokenList.get(index).getTokenValue();
@@ -109,48 +108,52 @@ public class Parser {
         }
     }
 
-    private void instructionsAffectation(ArrayList<Token> tokenList){
-        instructionAffectation(tokenList);
+    private void instructionsAffectation(){
+        instructionAffectation();
     }
 
-    private void instructionAffectation(ArrayList<Token> tokenList){
+    private void instructionAffectation(){
         Token tk;
-        isVariableDeclared(index);
-        variable(tokenList, false);
+        if(!isVariableDeclared(index)){
+            System.out.println("Erreur : variable non déclarée");
+        }
+        variable(false);
         // TODO: vérifier que si y'a une erreur dans variable() que ça pose pas problème pour tk ici
         tk = varList.get(varList.size()-1);
-        index = incremente(index);
-        if(searchForString(tokenList, "=", index)){
+        index++;
+        if(!searchForString("=", index)){
             System.out.println("mot clé \"=\" manquant");
         }
-        index = incremente(index);
-        expressionArithmetique(tokenList, tk);
+        index++;
+        expressionArithmetique(tk);
     }
 
 
-    private void expressionArithmetique(ArrayList<Token> tokenList, Token tk){
-        terme(tokenList, tk);
-        index = incremente(index);
-        if(searchForString(tokenList, "+", index) || searchForString(tokenList, "-", index)){
-            terme(tokenList, tk);
+    private void expressionArithmetique(Token tk){
+        terme(tk);
+        index++;
+        if(!searchForString("+", index) || !searchForString("-", index)){
+            terme(tk);
         }
-        if(!searchForString(tokenList, ";", index)){
-            expressionArithmetique(tokenList, tk);
-        }
-    }
-
-    private void terme(ArrayList<Token> tokenList, Token tk){
-        facteur(tokenList, tk);
-        index = incremente(index);
-        if(searchForString(tokenList, "*", index) || searchForString(tokenList, "/", index)){
-            facteur(tokenList, tk);
+        if(!searchForString(";", index)){
+            expressionArithmetique(tk);
         }
     }
 
-    private void facteur(ArrayList<Token> tokenList, Token tk){
+    private void terme(Token tk){
+        facteur(tk);
+        index++;
+        if(!searchForString("*", index) || !searchForString("/", index)){
+            facteur(tk);
+        }
+    }
+
+    private void facteur(Token tk){
         if(tokenList.get(index).getTokenType() == tokenType.ID){
-            isVariableDeclared(index);
-            variable(tokenList,false);
+            if(!isVariableDeclared(index)){
+                System.out.println("Erreur: variable non déclarée");
+            }
+            variable(false);
         }
         else if(tokenList.get(index).getTokenType() == tokenType.ENTIER) {
             if(tk.getVarType() != tokenType.ENTIER){
@@ -164,37 +167,34 @@ public class Parser {
             }
         }
         else{
-            System.out.println("appel exprArith");
-            //expressionArithmetique(tokenList, tk);
+            // System.out.println("appel exprArith");
+            // expressionArithmetique(tk);
         }
     }
 
-    private boolean searchForString(ArrayList<Token> tokenList, String str, int index){
+    private boolean searchForString(String str, int index){
         String tokenValue = tokenList.get(index).getTokenValue();
         if(str.equals(tokenValue)){
             return true;
         }
         else{
-            System.out.println("erreur: " + str);
+            // System.out.println("erreur: " + str);
             return false;
         }
-    }
-
-    private int incremente(int index){
-        index++;
-        return index;
     }
 
     /*
     Parcour la liste des variables déclarées et regarde si la variable est présente dans la liste.
     Si elle n'est pas présente, alors il y a nécessairement une erreur de syntaxe.
      */
-    private void isVariableDeclared(int index){
+    private boolean isVariableDeclared(int index){
         for(Token tk : varList){
-            if(!tk.getTokenValue().equals(varList.get(index).getTokenValue())){
-                System.out.println("erreur, variable non déclarée");
+            if(tk.getTokenValue().equals(tokenList.get(index).getTokenValue())){
+                // System.out.println("erreur, variable non déclarée");
+                return true;
             }
         }
+        return false;
     }
 
     public void checkIds(ArrayList<Token> tokenList){
