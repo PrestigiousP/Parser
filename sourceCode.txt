@@ -1,5 +1,5 @@
- Procedure 1nomMetho
- declare id:entier;
- id=1+2;
- id2=1+2;
+ Procedure nomMetho
+ declare id:entier; declare asdf: reeel;
+ id=1;
+ asdf=2.1;
  Fin_Procedure nomMetho

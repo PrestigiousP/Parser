@@ -8,8 +8,10 @@ public class Lexer {
     private ArrayList<Token> tokenList;
     private final SpecialCharacter specialCharacter;
     private final File sourceCode;
+    private int lineCount;
 
     public Lexer(File textFile, ArrayList<Token> tokenList, SpecialCharacter specialCharacter){
+        lineCount = 0;
         sourceCode = textFile;
         this.tokenList = tokenList;
         this.specialCharacter = specialCharacter;
@@ -20,27 +22,35 @@ public class Lexer {
             Scanner reader = new Scanner(sourceCode);
             ArrayList<Token> tokenList = new ArrayList<>();
             while (reader.hasNextLine()) {
+                lineCount++;
                 String data = reader.nextLine();
                 StringBuilder str = new StringBuilder();
                 for(int i=0;i<data.length();i++){
-                    char ch = data.charAt(i);
                     if(Character.isWhitespace(data.charAt(i)) && !str.isEmpty()){
-                        tokenList.add(new Token(str.toString()));
+                        Token tk = new Token(str.toString());
+                        tk.setLine(lineCount);
+                        tokenList.add(tk);
                         str.setLength(0);
                     }
                     else if(specialCharacter.isSpecialCharacter(String.valueOf(data.charAt(i)))){
                         if(!str.isEmpty()){
-                            tokenList.add(new Token(str.toString()));
+                            Token tk = new Token(str.toString());
+                            tk.setLine(lineCount);
+                            tokenList.add(tk);
                             str.setLength(0);
                         }
-                        tokenList.add(new Token(String.valueOf(data.charAt(i))));
+                        Token tk = new Token(String.valueOf(data.charAt(i)));
+                        tk.setLine(lineCount);
+                        tokenList.add(tk);
                     }
                     else if(Character.isLetter(data.charAt(i)) ||
                             Character.isDigit(data.charAt(i)) ||
                             String.valueOf(data.charAt(i)).equals("_")){
                         str.append(data.charAt(i));
                         if(i+1 == data.length()){
-                            tokenList.add(new Token(str.toString()));
+                            Token tk = new Token(str.toString());
+                            tk.setLine(lineCount);
+                            tokenList.add(tk);
                         }
                     }
                     else if(!Character.isWhitespace(data.charAt(i)) &&

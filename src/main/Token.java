@@ -7,6 +7,7 @@ public class Token {
     // type que la variable peut prendre (après déclaration)
     private tokenType varType;
     private String  value;
+    private int line;
 
     public Token(String _type) {
         // nombre reel
@@ -40,6 +41,10 @@ public class Token {
         }
         value = _type;
     }
+    public int getLine(){return line;}
+
+    public void setLine(int i){line = i;}
+
     public void addChar(char ch){
         value += ch;
     }

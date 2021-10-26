@@ -9,6 +9,7 @@ public class Parser {
     private Lexer lexer;
     private ArrayList<Token> tokenList;
     private String identificateurMethode;
+    private SpecialCharacter specialCharacter;
     private ArrayList<Token> varList;
     private int index;
 
@@ -17,7 +18,7 @@ public class Parser {
         varList = new ArrayList<>();
         sourceCode = textFile;
         tokenList = new ArrayList<>();
-        SpecialCharacter specialCharacter = new SpecialCharacter();
+        specialCharacter = new SpecialCharacter();
         lexer = new Lexer(textFile, tokenList, specialCharacter);
         tokenList = lexer.tokenize();
         procedure();
@@ -26,58 +27,67 @@ public class Parser {
 
     private void procedure(){
         if(!searchForString("Procedure", index)){
-            System.out.println("mot clé \"Procédure\" manquant");
+            throw new Exception("mot clé \"Procédure\" manquant, ligne "+tokenList.get(index).getLine());
         }
-        index++;
-        identificateur();
-        index++;
+        index = incremente(index,1);
+        identificateur(true);
+        index = incremente(index,1);
         declarations();
         instructionsAffectation();
+        index = incremente(index,1);
+        if(!searchForString("Fin_Procedure", index)){
+            throw new Exception("mot clé \"Fin_Procedure\" manquant, ligne "+tokenList.get(index).getLine());
+        }
+        index = incremente(index,1);
+        identificateur(false);
     }
 
-    private void identificateur(){
+    private void identificateur(boolean end){
         String tokenValue = tokenList.get(index).getTokenValue();
         if(Character.isLetter(tokenValue.charAt(0)) && tokenValue.length() <= 8){
-            identificateurMethode = tokenValue;
+            if(end)
+                identificateurMethode = tokenValue;
+            else{
+                if(!identificateurMethode.equals(tokenList.get(index).getTokenValue())){
+                    throw new Exception("Erreur: l'identificateur attendu est \""+identificateurMethode+"\", mais a reçu \""+tokenList.get(index).getTokenValue()+"\", ligne "+tokenList.get(index).getLine());
+                }
+            }
         }
         else{
             if(!Character.isLetter(tokenValue.charAt(0))){
-                throw new Exception("Erreur identificateur, ne commence pas par une lettre: ", tokenValue);
+                throw new Exception("Erreur identificateur, ne commence pas par une lettre: "+tokenValue+",ligne "+tokenList.get(index).getLine());
             } else{
-                throw new Exception("Erreur identificateur, est plus grand que 8 characteres: ", tokenValue.length());
+                throw new Exception("Erreur identificateur, est plus grand que 8 characteres: "+tokenValue.length()+",ligne "+tokenList.get(index).getLine());
             }
         }
     }
 
     private void declarations(){
         declaration();
-//        System.out.println(tokenList.get(index).getTokenId());
         if(tokenList.get(index).getTokenValue().equals("declare")){
             declarations();
         }
-//        System.out.println(tokenList.get(index).getTokenId());
     }
 
     private void declaration(){
-//        System.out.println(tokenList.get(index).getTokenId());
         Token tk;
         if(!searchForString("declare", index)){
-            System.out.println("mot clé \"declare\" manquant");
+            throw new Exception("mot clé \"declare\" manquant, ligne "+tokenList.get(index).getLine());
         }
-        index++;
-        variable(true);
+        index = incremente(index,1);
+        variable();
         tk = tokenList.get(index);
-        index++;
+        index = incremente(index,1);
         if(!searchForString(":", index)){
-            System.out.println("mot clé \":\" manquant");
+            throw new Exception("mot clé \":\" manquant, ligne "+tokenList.get(index).getLine());
         }
-        index++;
+        index = incremente(index,1);
         type(tk);
-        index++;
+        index = incremente(index,1);
         if(!searchForString(";", index)){
-            System.out.println("mot clé \";\" manquant");
+            throw new Exception("mot clé \";\" manquant, ligne "+tokenList.get(index).getLine());
         }
-        index++;
+        index = incremente(index,1);
     }
 
     /*
@@ -85,20 +95,17 @@ public class Parser {
         Le paramètre bool est vrai quand la variable est utilisée dans une déclaration et
         fausse quand elle est utilisée dans une expression.
      */
-    private void variable(boolean bool){
+    private void variable(){
         String tokenValue = tokenList.get(index).getTokenValue();
         if(!(Character.isLetter(tokenValue.charAt(0)) && tokenValue.length() <= 8)){
             if(!Character.isLetter(tokenValue.charAt(0))){
-                throw new Exception("Erreur variable, ne commence pas par une lettre: ", tokenValue);
+                throw new Exception("Erreur variable, ne commence pas par une lettre: "+ tokenValue+", ligne "+tokenList.get(index).getLine());
             } else{
-                throw new Exception("Erreur variable, est plus grand que 8 characteres: ", tokenValue.length());
+                throw new Exception("Erreur variable, est plus grand que 8 characteres: "+tokenValue.length()+",ligne "+tokenList.get(index).getLine());
             }
-
         }
-        else{
-            if(bool){
-                varList.add(tokenList.get(index));
-            }
+        if(specialCharacter.isReservedKeyword(tokenValue)){
+            throw new Exception("Erreur: utilisation illégal du mot clé \""+tokenValue+"\", ligne "+tokenList.get(index).getLine());
         }
     }
 
@@ -108,12 +115,14 @@ public class Parser {
         String tokenValue = tokenList.get(index).getTokenValue();
         if(str.equals(tokenValue)){
             tk.setVarType(tokenType.ENTIER);
+            varList.add(tk);
         }
         else if (str2.equals(tokenValue)){
             tk.setVarType(tokenType.REEL);
+            varList.add(tk);
         }
         else{
-            throw new Exception("Erreur : Type illégal n'est pas entier ou réel", tk.getVarType().toString());
+            throw new Exception("Erreur : Type invalide, ligne "+tokenList.get(index).getLine());
         }
     }
 
@@ -124,61 +133,92 @@ public class Parser {
     private void instructionAffectation(){
         Token tk;
         if(!isVariableDeclared(index)){
-            throw new Exception("Erreur : variable non déclarée");
+            throw new Exception("Erreur : variable non déclarée, ligne "+tokenList.get(index).getLine());
         }
-        variable(false);
-        // TODO: vérifier que si y'a une erreur dans variable() que ça pose pas problème pour tk ici
-        tk = varList.get(varList.size()-1);
-        index++;
+        // Vérifie si les contraintes de variables sont respectées
+        variable();
+        // Va chercher le token de la liste
+        tk = tokenList.get(index);
+        // Va comparer les tokens et retourne le token de la varlist de tokens déclarés
+        tk = getVarListToken(tk);
+        index = incremente(index, 1);
         if(!searchForString("=", index)){
-            System.out.println("mot clé \"=\" manquant");
+            throw new Exception("Erreur : opérateur \"=\" manquant, ligne "+tokenList.get(index).getLine());
         }
-        index++;
+        index = incremente(index, 1);
         expressionArithmetique(tk);
+        if(index+1 < tokenList.size()){
+            if(!tokenList.get(index+1).getTokenValue().equals("Fin_Procedure")){
+                index = incremente(index, 1);
+                instructionAffectation();
+            }
+        }
+    }
+
+    private Token getVarListToken(Token tk) {
+        for(Token token : varList){
+            if(token.getTokenValue().equals(tk.getTokenValue())){
+                return token;
+            }
+        }
+        // todo: tester ici
+        throw new Exception("Erreur: variable \""+tk+"\" n'est pas déclarée, ligne "+tokenList.get(index).getLine());
     }
 
 
     private void expressionArithmetique(Token tk){
         terme(tk);
-        index++;
-        if(!searchForString("+", index) || !searchForString("-", index)){
-            terme(tk);
+        if(index+2 < tokenList.size()){
+            if(searchForString("+", index+1) || searchForString("-", index+1)){
+                index = incremente(index, 2);
+                expressionArithmetique(tk);
+            }
+            else if(searchForString(";", index+1)){
+                // expressionArithmetique(tk);
+                index = incremente(index, 1);
+            }
         }
-        if(!searchForString(";", index)){
-            expressionArithmetique(tk);
+        else{
+            // todo: tester ici
+            throw new Exception("Erreur: fonction incomplète, ligne "+tokenList.get(index).getLine());
         }
     }
 
     private void terme(Token tk){
         facteur(tk);
-        index++;
-        if(!searchForString("*", index) || !searchForString("/", index)){
-            facteur(tk);
+        if(index+2 < tokenList.size()){
+            if(searchForString("*", index+1) || searchForString("/", index+1)){
+                index = incremente(index, 2);
+                facteur(tk);
+            }
+        }
+        else{
+            // todo: tester ici
+            throw new Exception("Erreur: fonction incomplète, ligne "+tokenList.get(index).getLine());
         }
     }
 
     private void facteur(Token tk){
         if(tokenList.get(index).getTokenType() == tokenType.ID){
             if(!isVariableDeclared(index)){
-                throw new Exception("Erreur : variable non déclarée");
+                throw new Exception("Erreur : variable non déclarée, ligne "+tokenList.get(index).getLine());
             }
-            variable(false);
+            // variable();
         }
         else if(tokenList.get(index).getTokenType() == tokenType.ENTIER) {
             if(tk.getVarType() != tokenType.ENTIER){
-                //todo: lancher une erreur
-                throw new Exception("Erreur : Type illégal, n'est pas entier : ", tk.getVarType().toString());
+                // todo: tester ici
+                throw new Exception("Erreur : Type invalide, attendu : "+tk.getVarType().toString()+", ligne "+tokenList.get(index).getLine());
             }
         } else if(tokenList.get(index).getTokenType() == tokenType.REEL){
             if(tk.getVarType() != tokenType.REEL){
-                //todo: lancer une erreur
-                throw new Exception("Erreur : Type illégal, n'est pas réel : ", tk.getVarType().toString());
+                // todo: tester ici
+                throw new Exception("Erreur : Type invalide, attendu : "+tk.getVarType().toString()+", ligne "+tokenList.get(index).getLine());
 
             }
         }
         else{
-            // System.out.println("appel exprArith");
-            // expressionArithmetique(tk);
+            throw new Exception("Erreur : expression arithmétique invalide, ligne "+tokenList.get(index).getLine());
         }
     }
 
@@ -193,6 +233,15 @@ public class Parser {
         }
     }
 
+    private int incremente(int index, int val){
+        if(index+val < tokenList.size())
+            index += val;
+        else{
+            throw new Exception("Erreur: jeton manquant, ligne "+tokenList.get(index).getLine());
+        }
+        return index;
+    }
+
     /*
     Parcour la liste des variables déclarées et regarde si la variable est présente dans la liste.
     Si elle n'est pas présente, alors il y a nécessairement une erreur de syntaxe.
@@ -200,7 +249,6 @@ public class Parser {
     private boolean isVariableDeclared(int index){
         for(Token tk : varList){
             if(tk.getTokenValue().equals(tokenList.get(index).getTokenValue())){
-                // System.out.println("erreur, variable non déclarée");
                 return true;
             }
         }
